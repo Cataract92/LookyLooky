@@ -11,6 +11,7 @@
 
 BluetoothModule* bl;
 GPSModule* gps;
+WifiModule* wifi;
 uint32_t count = -1;
 
 void setup()
@@ -19,16 +20,19 @@ void setup()
   while (!Serial) {
     ; // Wait for serial connection.
   }
-  delay(1000);
+
 
   //bl = new BluetoothModule(0,1,3,2);
-  gps = new GPSModule(0,1);
+  //gps = new GPSModule(0,1);
+  wifi = new WifiModule(0,1);
 
   //bl->begin();
-  gps->begin();
+  wifi->begin();
+  //gps->begin();
   Serial.println("Setup Complete!");
 
   //bl->enterATMode();
+  delay(1000);
 }
 
 void loop()
@@ -38,13 +42,19 @@ void loop()
       bl->write(Serial.read());
     if (bl->available())
       Serial.write(bl->read());
-*/
+
+
     if (!gps->process(count)){
         count++;
         return;
     }
+*/
 
-    
+    wifi->process(count);
 
+/*
+    if (wifi->available())
+      Serial.write(wifi->read());
+*/
     count++;
 }

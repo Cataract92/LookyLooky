@@ -1,16 +1,12 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
-#include "Network.h"
-
+#include <SoftwareSerial.h>
 
 void setup() {
   Serial.begin(9600);
-  while (!Serial) {
-    ; // Wait for serial connection.
-  }
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
-  delay(100);
+  delay(1000);
 }
 
 void loop() {
@@ -62,7 +58,11 @@ void loop() {
       }
     }
 
-    Network::updateNetwork(*BSSID, BSSIDstr, SSID, channel, encryptionTypeString, isHidden, RSSI);
+    if (isHidden)
+      SSID = "none";
 
+    Serial.printf("42,%s,%s,%s,%d,%s,%d\n",BSSIDstr.c_str(),SSID.c_str(),encryptionTypeString.c_str(),channel, isHidden ? "true" : "false" ,RSSI);
   }
+  Serial.print("end\n");
+
 }
