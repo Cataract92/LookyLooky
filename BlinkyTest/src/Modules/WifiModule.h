@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <list>
 #include <SoftwareSerial.h>
 
 class WifiModule: public SoftwareSerial
@@ -10,4 +11,6 @@ class WifiModule: public SoftwareSerial
 
   private:
     static const uint32_t BAUDRATE = 9600;
+
+    std::list<char*>* allNetworks = new std::list<char*>();
 };

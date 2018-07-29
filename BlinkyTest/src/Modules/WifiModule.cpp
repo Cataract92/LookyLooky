@@ -1,6 +1,8 @@
 
 #include "WifiModule.h"
 
+
+
 WifiModule::WifiModule(uint8_t rxPin, uint8_t txPin): SoftwareSerial(rxPin,txPin)
 {
 }
@@ -13,7 +15,6 @@ void WifiModule::begin()
 void WifiModule::process(uint8_t count)
 {
   bool isReading = true;
-  String dataString = "";
   String lineString = "";
 
   while (isReading)
@@ -33,18 +34,44 @@ void WifiModule::process(uint8_t count)
       if (lineString.startsWith("42,"))
       {
 
-        char BSSIDstr[18];
-        char SSID[lineString.length()-34];
-        char encryptionTypeString[13];
+        char* BSSIDstr;
+        char* SSID;
+        char* encryptionTypeString;
         int channel;
-        char isHidden[6];
+        char* isHidden;
         int RSSI;
 
-        sscanf(lineString.c_str(),"42,%17s,%[^,]s,%[^,]s,%[^,]d,%[^,]s,%[^,]d",&BSSIDstr,&SSID,&encryptionTypeString,&channel,&isHidden,&RSSI);
+        const char delim[2] = ",";
 
-        Serial.printf("%s , %s , %s , %d , %s , %d\n", BSSIDstr,SSID,encryptionTypeString,channel,isHidden,RSSI);
+        strtok(const_cast<char*>(lineString.c_str()), delim);
+        BSSIDstr = strtok(NULL, delim);
+        SSID = strtok(NULL, delim);
+        encryptionTypeString = strtok(NULL, delim);
+        channel = atoi(strtok(NULL, delim));
+        isHidden = strtok(NULL, delim);
+        RSSI = atoi(strtok(NULL, delim));
+
+        bool isNewNetwork = true;
+        for (std::list<char*>::iterator it=allNetworks->begin(); it != allNetworks->end(); ++it)
+        {
+          if (!strcmp(*it,BSSIDstr))
+          {
+            isNewNetwork = false;
+          }
+        }
+
+        if (isNewNetwork)
+        {
+          char* tmp = (char*) malloc(sizeof(char) * strlen(BSSIDstr));
+          strcpy(tmp, BSSIDstr);
+          allNetworks->push_back(tmp);
+
+          Serial.printf("%s,%s,%s,%d,%s\n", BSSIDstr,SSID,encryptionTypeString,channel,isHidden);
+        }
+
+        Serial.printf("%d,%s,%d\n",count, BSSIDstr,RSSI);
+
       }
-      dataString += (lineString + "\n");
       lineString = "";
     } else {
       lineString += c;

@@ -53,9 +53,13 @@ bool GPSModule::process(uint8_t count)
 
 
           Serial.printf("%d,%s,%f,%f,%d,%f\n",count,timestamp,latitude,longitude,numberSatellites,height);
+
+          isReading = false;
+        } else
+        {
+          return false;
         }
 
-        isReading = false;
       }
       dataString += (lineString + "\n");
       lineString = "";
@@ -63,9 +67,6 @@ bool GPSModule::process(uint8_t count)
       lineString += c;
     }
   }
-
-  if (count == -1)
-    return false;
 
   //Serial.println(dataString.c_str());
 
