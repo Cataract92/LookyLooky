@@ -1,12 +1,10 @@
 #include "BluetoothModule.h"
 
-BluetoothModule::BluetoothModule(uint8_t rxPin, uint8_t txPin, uint8_t state, uint8_t vcc): SoftwareSerial(rxPin,txPin)
+BluetoothModule::BluetoothModule(uint8_t rxPin, uint8_t txPin,uint8_t enable): SoftwareSerial(rxPin,txPin)
 {
-    this->state = state;
-    this->vcc = vcc;
-    pinMode(this->state,INPUT);
-    pinMode(this->vcc,OUTPUT);
-    digitalWrite(this->vcc,HIGH);
+  this->enable = enable;
+  pinMode(this->enable, OUTPUT);
+  digitalWrite(this->enable,HIGH);
 }
 
 void BluetoothModule::begin()
@@ -16,9 +14,6 @@ void BluetoothModule::begin()
 
 void BluetoothModule::enterATMode()
 {
-  digitalWrite(this->vcc, LOW);
-
-  char tmp[100];
 
   Serial.println("BluetoothModule: Entering AT Mode. Please press Enter while pressing the Button on the BluetoothModule");
   Serial.println("BluetoothModule: Trying Mode");
@@ -28,12 +23,9 @@ void BluetoothModule::enterATMode()
 
 void BluetoothModule::sendATCommand(const char* command)
 {
+  Serial.println(command);
   this->write(command);
+  this->write("\r\n ");
   while(this->available() == 0) {}
   Serial.println(this->readString());
-}
-
-bool BluetoothModule::isConnected()
-{
-  return digitalRead(this->state) == HIGH;
 }

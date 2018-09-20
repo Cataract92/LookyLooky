@@ -1,4 +1,4 @@
-/**
+  /**
  * Blink
  *
  * Turns on an LED on for one second,
@@ -10,8 +10,9 @@
 #include "Modules/WifiModule.h"
 
 BluetoothModule* bl;
-GPSModule* gps;
-WifiModule* wifi;
+//GPSModule* gps;
+//WifiModule* wifi;
+//Sim800l* gsm;
 uint32_t count = 0;
 
 void setup()
@@ -22,34 +23,53 @@ void setup()
   }
 
 
-  //bl = new BluetoothModule(0,1,3,2);
-  gps = new GPSModule(9,10);
-  wifi = new WifiModule(0,1);
+  bl = new BluetoothModule(7,8,6);
+  //gps = new GPSModule(9,10);
+  //wifi = new WifiModule(0,1);
 
-  //bl->begin();
-  wifi->begin();
-  gps->begin();
+  //gsm = new Sim800l();
+  //gsm->begin();
+  bl->begin();
+  //wifi->begin();
+  //gps->begin();
   Serial.println("Setup Complete!");
 
   //bl->enterATMode();
-  delay(1000);
+
+  bl->sendATCommand("AT+UART=38400,0,0");
+  bl->sendATCommand("AT+RMAAD");
+  bl->sendATCommand("AT+CLASS=0");
+  bl->sendATCommand("AT+ROLE=1");
+  //delay(2000);
+  bl->sendATCommand("AT+RESET");
+  //delay(2000);
+  bl->sendATCommand("AT+INIT");
+  bl->sendATCommand("AT+CMODE=1");
+  bl->sendATCommand("AT+INQM=1,1,48");
+  bl->sendATCommand("AT+IPSCAN=800,12,800,12");
+  bl->sendATCommand("AT+PSWD=\"9999\"");
 }
 
 void loop()
 {
-  /*
-    if (Serial.available())
+
+
+    if (Serial.available()){
       bl->write(Serial.read());
+    }
     if (bl->available())
       Serial.write(bl->read());
 
-*/
+
+    //Serial.write(gsm->dateNet().c_str());
+
+/*
     if (!gps->process(count)){
         return;
     }
+*/
 
-
-    wifi->process(count);
+    //wifi->process(count);
 
 /*
     if (wifi->available())

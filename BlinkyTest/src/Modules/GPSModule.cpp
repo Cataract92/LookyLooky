@@ -42,6 +42,8 @@ bool GPSModule::process(uint8_t count)
       {
         sscanf(lineString.c_str(),"$GPGGA,%9s,%lf,%*c,%lf,%*c,%*c,%d,%*f,%f",&timestamp,&latitude,&longitude,&numberSatellites,&height);
 
+        Serial.println(lineString.c_str());
+
         if (validity == 'A'){
 
           double fractpart, intpart;
@@ -57,7 +59,8 @@ bool GPSModule::process(uint8_t count)
           isReading = false;
         } else
         {
-          return false;
+          //return false;
+          return true;
         }
 
       }
