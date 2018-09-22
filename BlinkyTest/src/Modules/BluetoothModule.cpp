@@ -72,3 +72,18 @@ String BluetoothModule::getReply(){
   }
   return this->readString();
 }
+void BluetoothModule::process(uint32_t count){
+    this->enterScanMode();
+    // digitalWrite(ledPin,HIGH);
+    unsigned long del = millis();
+    String res = "";
+    while (millis()-del < 10000){
+      res+=this->getReply();
+    }
+    Serial.println(res);
+    // digitalWrite(ledPin,LOW);
+    this->switchOff();
+   // flush
+    while (this->available())
+      this->getReply();
+}

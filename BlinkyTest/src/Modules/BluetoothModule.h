@@ -5,7 +5,7 @@ class BluetoothModule: public SoftwareSerial
   public:
       BluetoothModule(uint8_t rxPin, uint8_t txPin,uint8_t enable, uint8_t vcc);
      BluetoothModule(uint8_t rxPin, uint8_t txPin,uint8_t enable);
-     void process(uint8_t count);
+     void process(uint32_t count);
      bool isConnected();
      void switchOff();
      void enterATMode();

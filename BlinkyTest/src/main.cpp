@@ -51,55 +51,30 @@ void setup()
   Serial.print(bl->getReply());
   bl->sendATCommand("AT+ROLE=1");
   Serial.print(bl->getReply());
-  //delay(2000);
   bl->sendATCommand("AT+RESET");
-  // Serial.print(bl->getReply());
+  // this reset never gives an ok
   bl->switchOff();
   bl->enterATMode();
-  // delay(2000);
   bl->sendATCommand("AT+INIT");
   Serial.print(bl->getReply());
   bl->sendATCommand("AT+CMODE=1");
   Serial.print(bl->getReply());
   bl->sendATCommand("AT+INQM=1,1,1");
   Serial.print(bl->getReply());
-  // bl->sendATCommand("AT+IPSCAN=800,12,800,12");
-  // Serial.print(bl->getReply());
   bl->sendATCommand("AT+PSWD=\"9999\"");
   Serial.print(bl->getReply());
   bl->switchOff();
-  // bl->enterScanMode();
-  // delay(10000);
-  // bl->sendATCommand("AT");
-  // Serial.print(bl->getReply());
-  // // bl->sendATCommand("AT+INQ");
-  //
-  // while (bl->available()){
-  //   Serial.print(bl->getReply());
-  // }
-  // bl->switchOff();
-  // // bl->enterATMode();
 
 }
 
 void loop()
 {
 
-  bl->enterScanMode();
-  digitalWrite(ledPin,HIGH);
-  unsigned long del = millis();
-  while (millis()-del < 10000){
-    // if (bl->available()){
-    Serial.print(bl->getReply());
-  // } else {
-  //     delay(1);
-  // }
-  }
-  digitalWrite(ledPin,LOW);
-  bl->switchOff();
- // flush
-  while (bl->available())
-    bl->getReply();
+  // bl process braucht 2,5sek vorlauf bis es gestartet ist (Scan mode)
+  digitalWrite(ledPin, HIGH);
+  bl->process(count);
+  digitalWrite(ledPin, LOW);
+  // es hat auch 1,5 sek nachlauf (shutdown) -> gesamt 14 sek
   delay(5000);
 
     // if (Serial.available()){
