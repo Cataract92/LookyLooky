@@ -36,19 +36,11 @@ void setup()
 
   sd = new SDCardModule();
   // christian
-<<<<<<< HEAD
-  //bl = new BluetoothModule(sd,7,8,6);
-  // nico
-  bl = new BluetoothModule(sd,0,1,3,2, false);
-  gps = new GPSModule(sd,9,10);
-  //wifi = new WifiModule(sd,33,34);
-=======
   bl = new BluetoothModule(sd,7,8,6,5);
   // nico
   // bl = new BluetoothModule(sd,7,8,6, 5, false);
   gps = new GPSModule(sd,0,1);
   wifi = new WifiModule(sd,9,10);
->>>>>>> cfc172e062dc31bc98baf9caf04ba10adba2c3f1
 
   //wifi->begin();
   gps->begin();
@@ -69,12 +61,7 @@ void loop()
   } else {
     Serial.println("GPS");
     digitalWrite(ledPin, HIGH);
-<<<<<<< HEAD
-
-  //wifi->process(count);
-=======
     wifi->process(count);
->>>>>>> cfc172e062dc31bc98baf9caf04ba10adba2c3f1
 
     // bl process braucht 2,5sek vorlauf bis es gestartet ist (Scan mode)
     bl->process(count);
