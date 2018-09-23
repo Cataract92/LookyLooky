@@ -27,6 +27,6 @@ class BluetoothModule: public SoftwareSerial
      uint8_t vcc=0;
      bool inverted = true;
      static const uint32_t BAUDRATE = 38400;
-     const char delim[2] = ",";
+     const char delim[2] = "\n";
 
 };
