@@ -31,58 +31,46 @@ void setup()
   pinMode(ledPin, OUTPUT);
   digitalWrite(ledPin,LOW);
   Serial.begin(9600);
-
-  delay(10000);
+  blink(3, 500, 500);
+  // delay(10000);
 
   sd = new SDCardModule();
   // christian
-<<<<<<< HEAD
-  //bl = new BluetoothModule(sd,7,8,6);
-  // nico
-  bl = new BluetoothModule(sd,0,1,3,2, false);
-  gps = new GPSModule(sd,9,10);
-  //wifi = new WifiModule(sd,33,34);
-=======
   bl = new BluetoothModule(sd,7,8,6,5);
   // nico
   // bl = new BluetoothModule(sd,7,8,6, 5, false);
   gps = new GPSModule(sd,0,1);
   wifi = new WifiModule(sd,9,10);
->>>>>>> cfc172e062dc31bc98baf9caf04ba10adba2c3f1
 
-  //wifi->begin();
+  wifi->begin();
   gps->begin();
   bl->setup();
 
   Serial.println("Setup Complete!");
-  //blink(2, 250, 250);
+  blink(2, 250, 250);
 }
 
 void loop()
 {
-  Serial.println("loop");
-  //blink(2, 500, 500);
-  if (!gps->process(count)){
-      //blink(3, 250, 250);
-      Serial.println("no GPS");
-      return;
-  } else {
+  Serial.println("measure");
+  blink(2, 500, 500);
+  // if (!gps->process(count)){
+  //     blink(3, 250, 250);
+  //     Serial.println("no GPS");
+  //
+  // } else {
     Serial.println("GPS");
     digitalWrite(ledPin, HIGH);
-<<<<<<< HEAD
 
-  //wifi->process(count);
-=======
     wifi->process(count);
->>>>>>> cfc172e062dc31bc98baf9caf04ba10adba2c3f1
 
     // bl process braucht 2,5sek vorlauf bis es gestartet ist (Scan mode)
     bl->process(count);
     // es hat auch 1,5 sek nachlauf (shutdown) -> gesamt 14 sek
     digitalWrite(ledPin, LOW);
-  }
+  // }
 
-  delay(5000);
+  // delay(20000);
 
   count++;
 }
