@@ -9,7 +9,7 @@ void GPSModule::begin()
   SoftwareSerial::begin(GPSModule::BAUDRATE);
 }
 
-bool GPSModule::process(uint8_t count)
+bool GPSModule::process(uint32_t count)
 {
   bool isReading = true;
   String dataString = "";
@@ -24,14 +24,18 @@ bool GPSModule::process(uint8_t count)
 
   while (isReading)
   {
-    if (!this->available())
+    Serial.println("GPS loop");
+    if (!this->available()){
+      Serial.println("no data");
+      delay(1000);
       continue;
-
+    }
     char c = this->read();
 
-    if (c == '\n')
+    if (c == '\n'){
+      Serial.println("n");
       continue;
-
+    }
     if (c == '\r')
     {
 
