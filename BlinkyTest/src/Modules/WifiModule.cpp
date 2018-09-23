@@ -6,6 +6,7 @@
 WifiModule::WifiModule(SDCardModule* sd, uint8_t rxPin, uint8_t txPin): SoftwareSerial(rxPin,txPin)
 {
   this->sd = sd;
+  this->setTimeout(1000);
 }
 
 void WifiModule::begin()
@@ -15,6 +16,7 @@ void WifiModule::begin()
 
 void WifiModule::process(uint8_t count)
 {
+  this->flush();
   bool isReading = true;
   String lineString = "";
   char buffer[256];
@@ -23,7 +25,7 @@ void WifiModule::process(uint8_t count)
   {
     if (!this->available()){
       Serial.println("no WLAN data");
-      delay(100);      
+      delay(100);
       kill_count--;
       continue;
     }
@@ -57,9 +59,9 @@ void WifiModule::process(uint8_t count)
         RSSI = atoi(strtok(NULL, delim));
 
         bool isNewNetwork = true;
-        for (std::list<char*>::iterator it=allNetworks->begin(); it != allNetworks->end(); ++it)
+        for (std::vector<String>::iterator it=allNetworks.begin(); it != allNetworks.end(); ++it)
         {
-          if (!strcmp(*it,BSSIDstr))
+          if (!strcmp(it->c_str(),BSSIDstr))
           {
             isNewNetwork = false;
           }
@@ -67,9 +69,9 @@ void WifiModule::process(uint8_t count)
 
         if (isNewNetwork)
         {
-          char* tmp = (char*) malloc(sizeof(char) * strlen(BSSIDstr));
-          strcpy(tmp, BSSIDstr);
-          allNetworks->push_back(tmp);
+          // char* tmp = (char*) malloc(sizeof(char) * strlen(BSSIDstr));
+          // strcpy(tmp, BSSIDstr);
+          allNetworks.push_back(BSSIDstr);
 
           sprintf(buffer,"%s,%s,%s,%d,%s\n",BSSIDstr,SSID,encryptionTypeString,channel,isHidden);
           sd->writeToFile("networks.csv",buffer);

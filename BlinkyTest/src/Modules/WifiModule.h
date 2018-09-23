@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include <list>
+#include <vector>
 #include <SoftwareSerial.h>
 #include "Modules/SDCardModule.h"
 
@@ -14,5 +14,5 @@ class WifiModule: public SoftwareSerial
   private:
     static const uint32_t BAUDRATE = 9600;
     SDCardModule* sd;
-    std::list<char*>* allNetworks = new std::list<char*>();
+    std::vector<String> allNetworks;
 };

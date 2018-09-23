@@ -137,10 +137,7 @@ void BluetoothModule::process(uint32_t count){
      while (this->available()){
        this->getReply();
     }
-    res+="\0";
-    Serial.println("flushed");
     char* line = strtok(const_cast<char*>(res.c_str()), delim);
-    Serial.println("line");
     char address[15];
     char classtype[7];
     char rssi[7];
