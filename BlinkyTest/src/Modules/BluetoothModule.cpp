@@ -144,9 +144,9 @@ void BluetoothModule::process(uint32_t count){
             sscanf(line,"+INQ:,%14s,%6s,%6s",&address,&classtype,&rssi);
 
             char buffer[256];
-            sprintf(buffer,"%d,%s,%s,%s\n",address,classtype,rssi);
+            sprintf(buffer,"%d,%s,%s,%s\n",count,address,classtype,rssi);
             sd->writeToFile("bl.csv",buffer);
-            Serial.printf("%d,%s,%s,%s\n",address,classtype,rssi);
+            Serial.printf("%d,%s,%s,%s\n",count,address,classtype,rssi);
         }
         line = strtok(NULL,delim);
     }
