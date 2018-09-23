@@ -24,16 +24,15 @@ bool GPSModule::process(uint32_t count)
 
   while (isReading)
   {
-    Serial.println("GPS loop");
+    //Serial.println("GPS loop");
     if (!this->available()){
-      Serial.println("no data");
-      delay(1000);
+      //Serial.println("no data");
+      //delay(1000);
       continue;
     }
     char c = this->read();
 
     if (c == '\n'){
-      Serial.println("n");
       continue;
     }
     if (c == '\r')
@@ -76,8 +75,6 @@ bool GPSModule::process(uint32_t count)
       lineString += c;
     }
   }
-
-  //Serial.println(dataString.c_str());
 
   return true;
 }

@@ -2,6 +2,7 @@
 #include "Arduino.h"
 #include <SoftwareSerial.h>
 #include "SDCardModule.h"
+#include <regex>
 
 class BluetoothModule: public SoftwareSerial
 {
@@ -26,4 +27,6 @@ class BluetoothModule: public SoftwareSerial
      uint8_t vcc=0;
      bool inverted = true;
      static const uint32_t BAUDRATE = 38400;
+     const char delim[2] = ",";
+
 };
