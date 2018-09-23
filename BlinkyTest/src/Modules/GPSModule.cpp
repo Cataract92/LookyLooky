@@ -9,10 +9,11 @@ void GPSModule::begin()
   SoftwareSerial::begin(GPSModule::BAUDRATE);
 }
 
-bool GPSModule::process(uint32_t count)
+bool GPSModule::process()
 {
   bool isReading = true;
-
+  // String dataString = "";
+  String lineString = "";
 
   char validity;
   char timestamp[10];
@@ -25,9 +26,8 @@ bool GPSModule::process(uint32_t count)
   {
 
     if (!this->available()){
-      Serial.println("no data");
       kill_count--;
-      delay(100);
+      delay(200);
       continue;
     }
     char c = this->read();
@@ -37,16 +37,20 @@ bool GPSModule::process(uint32_t count)
     }
     if (c == '\r')
     {
-
+      Serial.println(lineString.c_str());
       if (lineString.startsWith("$GPRMC"))
       {
         sscanf(lineString.c_str(),"$GPRMC,%9s,%c",&timestamp,&validity);
-        Serial.println(lineString.c_str());
+        Serial.println(timestamp);
+        set_time(std::strtoul(timestamp,NULL,10));
+        Serial.printf("%u\n",time);
       }
       if (lineString.startsWith("$GPGGA"))
       {
         sscanf(lineString.c_str(),"$GPGGA,%9s,%lf,%*c,%lf,%*c,%*c,%d,%*f,%f",&timestamp,&latitude,&longitude,&numberSatellites,&height);
-
+        Serial.println(timestamp);
+        set_time(std::strtoul(timestamp,NULL,10));
+        Serial.printf("%u\n",time);
         if (validity == 'A'){
 
           double fractpart, intpart;
@@ -57,9 +61,9 @@ bool GPSModule::process(uint32_t count)
           longitude = intpart+(fractpart / 60)*100;
 
           char buffer[256];
-          sprintf(buffer,"%d,%s,%f,%f,%d,%f\n",count,timestamp,latitude,longitude,numberSatellites,height);
+          sprintf(buffer,"%u,%s,%f,%f,%d,%f\n",time,timestamp,latitude,longitude,numberSatellites,height);
           sd->writeToFile("gps.csv",buffer);
-          Serial.printf("%d,%s,%f,%f,%d,%f\n",count,timestamp,latitude,longitude,numberSatellites,height);
+          Serial.printf("%u,%s,%f,%f,%d,%f\n",time,timestamp,latitude,longitude,numberSatellites,height);
 
           isReading = false;
         } else
@@ -68,12 +72,11 @@ bool GPSModule::process(uint32_t count)
         }
 
       }
-      dataString += (lineString + "\n");
+      // dataString += (lineString + "\n");
       lineString = "";
     } else {
       lineString += c;
     }
   }
-
   return kill_count != 0;
 }

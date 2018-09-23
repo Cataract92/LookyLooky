@@ -14,7 +14,7 @@ void WifiModule::begin()
   SoftwareSerial::begin(WifiModule::BAUDRATE);
 }
 
-void WifiModule::process(uint8_t count)
+void WifiModule::process(uint64_t count)
 {
   this->flush();
   bool isReading = true;

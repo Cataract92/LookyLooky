@@ -122,7 +122,7 @@ String BluetoothModule::getReply(){
   }
   return this->readString();
 }
-void BluetoothModule::process(uint32_t count){
+void BluetoothModule::process(uint64_t count){
     this->enterScanMode();
     // digitalWrite(ledPin,HIGH);
     unsigned long del = millis();
@@ -150,12 +150,12 @@ void BluetoothModule::process(uint32_t count){
         ms.Target (line);
         if (ms.Match ("%+INQ:%x%x%x%x:%x%x:%x%x%x%x%x%x,%x%x%x%x%x,%x%x%x%x") > 0)
         {
-            sscanf(line,"+INQ:%14s,%5s,%4s",&address,&classtype,&rssi);
+            sscanf(line,"+INQ:%14s,%5s,%4s",address,classtype,rssi);
 
             char buffer[256];
-            sprintf(buffer,"%d,%s,%s,%s\n",count,address,classtype,rssi);
+            sprintf(buffer,"%u,%s,%s,%s\n",count,address,classtype,rssi);
             sd->writeToFile("bl.csv",buffer);
-            Serial.printf("%d,%s,%s,%s\n",count,address,classtype,rssi);
+            Serial.printf("%u,%s,%s,%s\n",count,address,classtype,rssi);
         }
         line = strtok(NULL,delim);
     }

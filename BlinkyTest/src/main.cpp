@@ -9,7 +9,6 @@
 #include "Modules/BluetoothModule.h"
 #include "Modules/WifiModule.h"
 #include "Modules/GSMModule.h"
-uint32_t count = 0;
 const int ledPin = 13;
 SDCardModule* sd;
 BluetoothModule* bl;
@@ -54,7 +53,7 @@ void loop()
 {
   Serial.println("measure");
   blink(2, 500, 500);
-  if (!gps->process(count)){
+  if (!gps->process()){
       blink(3, 250, 250);
       Serial.println("no GPS");
 
@@ -62,15 +61,14 @@ void loop()
     Serial.println("GPS");
     digitalWrite(ledPin, HIGH);
 
-    wifi->process(count);
+    wifi->process(gps->get_timestamp());
 
     // bl process braucht 2,5sek vorlauf bis es gestartet ist (Scan mode)
-    bl->process(count);
+    bl->process(gps->get_timestamp());
     // es hat auch 1,5 sek nachlauf (shutdown) -> gesamt 14 sek
     digitalWrite(ledPin, LOW);
   }
-
+  gps->newTime();
   delay(20000);
 
-  count++;
 }

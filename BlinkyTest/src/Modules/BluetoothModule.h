@@ -10,7 +10,7 @@ class BluetoothModule: public SoftwareSerial
     BluetoothModule(SDCardModule* sd, uint8_t rxPin, uint8_t txPin,uint8_t enable, uint8_t vcc, bool inverted);
      BluetoothModule(SDCardModule* sd, uint8_t rxPin, uint8_t txPin,uint8_t enable, uint8_t vcc);
      BluetoothModule(SDCardModule* sd, uint8_t rxPin, uint8_t txPin,uint8_t enable);
-     void process(uint32_t count);
+     void process(uint64_t count);
      void setup();
      bool isConnected();
      void switchOff();
