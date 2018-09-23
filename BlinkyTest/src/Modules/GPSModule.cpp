@@ -1,6 +1,7 @@
 #include "GPSModule.h"
-GPSModule::GPSModule(uint8_t rxPin, uint8_t txPin): SoftwareSerial(rxPin,txPin)
+GPSModule::GPSModule(SDCardModule* sd, uint8_t rxPin, uint8_t txPin): SoftwareSerial(rxPin,txPin)
 {
+  this->sd = sd;
 }
 
 void GPSModule::begin()
@@ -37,12 +38,11 @@ bool GPSModule::process(uint8_t count)
       if (lineString.startsWith("$GPRMC"))
       {
         sscanf(lineString.c_str(),"$GPRMC,%9s,%c",&timestamp,&validity);
+        Serial.println(lineString.c_str());
       }
       if (lineString.startsWith("$GPGGA"))
       {
         sscanf(lineString.c_str(),"$GPGGA,%9s,%lf,%*c,%lf,%*c,%*c,%d,%*f,%f",&timestamp,&latitude,&longitude,&numberSatellites,&height);
-
-        Serial.println(lineString.c_str());
 
         if (validity == 'A'){
 
@@ -53,14 +53,16 @@ bool GPSModule::process(uint8_t count)
           fractpart = modf(longitude/100,&intpart);
           longitude = intpart+(fractpart / 60)*100;
 
-
+          char buffer[256];
+          sprintf(buffer,"%d,%s,%f,%f,%d,%f\n",count,timestamp,latitude,longitude,numberSatellites,height);
+          sd->writeToFile("gps.csv",buffer);
           Serial.printf("%d,%s,%f,%f,%d,%f\n",count,timestamp,latitude,longitude,numberSatellites,height);
 
           isReading = false;
         } else
         {
           //return false;
-          return true;
+          return false;
         }
 
       }

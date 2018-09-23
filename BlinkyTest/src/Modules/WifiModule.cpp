@@ -3,8 +3,9 @@
 
 
 
-WifiModule::WifiModule(uint8_t rxPin, uint8_t txPin): SoftwareSerial(rxPin,txPin)
+WifiModule::WifiModule(SDCardModule* sd, uint8_t rxPin, uint8_t txPin): SoftwareSerial(rxPin,txPin)
 {
+  this->sd = sd;
 }
 
 void WifiModule::begin()
@@ -16,6 +17,7 @@ void WifiModule::process(uint8_t count)
 {
   bool isReading = true;
   String lineString = "";
+  char buffer[256];
 
   while (isReading)
   {
@@ -66,11 +68,14 @@ void WifiModule::process(uint8_t count)
           strcpy(tmp, BSSIDstr);
           allNetworks->push_back(tmp);
 
+          sprintf(buffer,"%s,%s,%s,%d,%s\n",BSSIDstr,SSID,encryptionTypeString,channel,isHidden);
+          sd->writeToFile("networks.csv",buffer);
           Serial.printf("%s,%s,%s,%d,%s\n", BSSIDstr,SSID,encryptionTypeString,channel,isHidden);
         }
 
+        sprintf(buffer,"%d,%s,%d\n",count, BSSIDstr,RSSI);
+        sd->writeToFile("wifi.csv",buffer);
         Serial.printf("%d,%s,%d\n",count, BSSIDstr,RSSI);
-
       }
       lineString = "";
     } else {
