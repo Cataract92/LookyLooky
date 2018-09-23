@@ -6,7 +6,7 @@ class GSMModule: public SoftwareSerial
 {
   public:
      GSMModule(uint8_t rxPin, uint8_t txPin);
-     bool process(uint8_t count);
+     bool process(uint32_t count);
      void begin();
 
   private:

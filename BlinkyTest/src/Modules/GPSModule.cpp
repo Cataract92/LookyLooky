@@ -9,7 +9,7 @@ void GPSModule::begin()
   SoftwareSerial::begin(GPSModule::BAUDRATE);
 }
 
-bool GPSModule::process(uint8_t count)
+bool GPSModule::process(uint32_t count)
 {
   bool isReading = true;
   String dataString = "";
@@ -61,8 +61,8 @@ bool GPSModule::process(uint8_t count)
           isReading = false;
         } else
         {
+          return true;
           //return false;
-          return false;
         }
 
       }

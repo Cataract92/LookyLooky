@@ -8,7 +8,7 @@ void GSMModule::begin()
   SoftwareSerial::begin(GSMModule::BAUDRATE);
 }
 
-bool GSMModule::process(uint8_t count)
+bool GSMModule::process(uint32_t count)
 {
   return true;
 }

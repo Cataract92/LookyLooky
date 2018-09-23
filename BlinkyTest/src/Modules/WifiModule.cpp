@@ -13,7 +13,7 @@ void WifiModule::begin()
   SoftwareSerial::begin(WifiModule::BAUDRATE);
 }
 
-void WifiModule::process(uint8_t count)
+void WifiModule::process(uint32_t count)
 {
   bool isReading = true;
   String lineString = "";
@@ -28,7 +28,6 @@ void WifiModule::process(uint8_t count)
 
     if (c == '\n')
     {
-
       if (lineString.startsWith("end"))
       {
         isReading = false;
@@ -70,12 +69,12 @@ void WifiModule::process(uint8_t count)
 
           sprintf(buffer,"%s,%s,%s,%d,%s\n",BSSIDstr,SSID,encryptionTypeString,channel,isHidden);
           sd->writeToFile("networks.csv",buffer);
-          Serial.printf("%s,%s,%s,%d,%s\n", BSSIDstr,SSID,encryptionTypeString,channel,isHidden);
+          //Serial.printf("%s,%s,%s,%d,%s\n", BSSIDstr,SSID,encryptionTypeString,channel,isHidden);
         }
 
         sprintf(buffer,"%d,%s,%d\n",count, BSSIDstr,RSSI);
         sd->writeToFile("wifi.csv",buffer);
-        Serial.printf("%d,%s,%d\n",count, BSSIDstr,RSSI);
+        //Serial.printf("%d,%s,%d\n",count, BSSIDstr,RSSI);
       }
       lineString = "";
     } else {

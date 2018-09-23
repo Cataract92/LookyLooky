@@ -8,7 +8,7 @@ class WifiModule: public SoftwareSerial
 {
   public:
      WifiModule(SDCardModule* sd, uint8_t rxPin, uint8_t txPin);
-     void process(uint8_t count);
+     void process(uint32_t count);
      void begin();
 
   private:

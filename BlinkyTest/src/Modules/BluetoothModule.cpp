@@ -118,6 +118,9 @@ void BluetoothModule::process(uint32_t count){
       res+=this->getReply();
     }
     Serial.println(res);
+
+    
+
     // digitalWrite(ledPin,LOW);
     this->switchOff();
    // flush
