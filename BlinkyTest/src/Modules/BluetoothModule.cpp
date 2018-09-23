@@ -141,7 +141,7 @@ void BluetoothModule::process(uint32_t count){
     {
         if (std::regex_match(line,re))
         {
-            sscanf(line,"+INQ:,%14s,%6s,%6s",&address,&classtype,&rssi);
+            sscanf(line,"+INQ:%14s,%6s,%6s",&address,&classtype,&rssi);
 
             char buffer[256];
             sprintf(buffer,"%d,%s,%s,%s\n",count,address,classtype,rssi);
