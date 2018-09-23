@@ -61,10 +61,7 @@ void loop()
   // } else {
     Serial.println("GPS");
     digitalWrite(ledPin, HIGH);
-<<<<<<< HEAD
-=======
 
->>>>>>> 8cd642afad1e6bc1cc644e605ea3d66e50b58d7f
     wifi->process(count);
 
     // bl process braucht 2,5sek vorlauf bis es gestartet ist (Scan mode)

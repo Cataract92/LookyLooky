@@ -134,18 +134,22 @@ void BluetoothModule::process(uint32_t count){
     this->switchOff();
 
     // flush
-     while (this->available())
+     while (this->available()){
        this->getReply();
-
-    std::regex re("\+INQ:[0-9A-F]{4}:[0-9A-F]{2}:[0-9A-F]{6},[0-9A-F]{6},[0-9A-F]{4}");
+    }
+    res+="\0";
+    Serial.println("flushed");
+    std::regex re("+INQ:[0-9A-F]{4}:[0-9A-F]{2}:[0-9A-F]{6},[0-9A-F]{6},[0-9A-F]{4}");
+    Serial.println("regex");
     char* line = strtok(const_cast<char*>(res.c_str()), delim);
-
+    Serial.println("line");
     char address[15];
     char classtype[7];
     char rssi[7];
 
     while (line != NULL)
     {
+        Serial.println(line);
         if (std::regex_match(line,re))
         {
             sscanf(line,"+INQ:%14s,%6s,%4s",&address,&classtype,&rssi);
