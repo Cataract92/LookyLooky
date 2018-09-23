@@ -7,7 +7,7 @@ BluetoothModule::BluetoothModule(SDCardModule* sd, uint8_t rxPin, uint8_t txPin,
   pinMode(this->enable, OUTPUT);
   digitalWrite(this->enable,HIGH);
   pinMode(this->vcc, OUTPUT);
-  digitalWrite(this->vcc,HIGH);
+  digitalWrite(this->vcc,inverted ? HIGH : LOW);
 }
 BluetoothModule::BluetoothModule(SDCardModule* sd, uint8_t rxPin, uint8_t txPin,uint8_t enable, uint8_t vcc, bool inverted): SoftwareSerial(rxPin,txPin)
 {
@@ -18,7 +18,7 @@ BluetoothModule::BluetoothModule(SDCardModule* sd, uint8_t rxPin, uint8_t txPin,
   pinMode(this->enable, OUTPUT);
   digitalWrite(this->enable,HIGH);
   pinMode(this->vcc, OUTPUT);
-  digitalWrite(this->vcc,HIGH);
+  digitalWrite(this->vcc,inverted ? HIGH : LOW);
   this->inverted = inverted;
 }
 
@@ -37,8 +37,9 @@ void BluetoothModule::begin()
 
 void BluetoothModule::setup()
 {
-  enterATMode();
   begin();
+  switchOff();
+  enterATMode();
   sendATCommand("AT+ORGL");
   Serial.print(getReply());
   sendATCommand("AT+RESET");
@@ -61,7 +62,7 @@ void BluetoothModule::setup()
   Serial.print(getReply());
   sendATCommand("AT+CMODE=1");
   Serial.print(getReply());
-  sendATCommand("AT+INQM=1,1,1");
+  sendATCommand("AT+INQM=1,9,1");
   Serial.print(getReply());
   sendATCommand("AT+PSWD=\"9999\"");
   Serial.print(getReply());
@@ -71,7 +72,7 @@ void BluetoothModule::setup()
 void BluetoothModule::switchOff() {
   if (this->vcc != 0){
     delay(500);
-    digitalWrite(this->vcc,HIGH);
+    digitalWrite(this->vcc,inverted ?HIGH : LOW);
     digitalWrite(this->enable,LOW);
     delay(1000);
     Serial.println("Bluetooth Module shutdown");
@@ -83,7 +84,7 @@ void BluetoothModule::enterATMode()
     delay(500);
     digitalWrite(this->enable,HIGH);
     delay(1000);
-    digitalWrite(this->vcc,LOW);
+    digitalWrite(this->vcc,inverted ?LOW : HIGH);
     delay(1000);
     Serial.println("BluetoothModule: AT Mode");
   }
@@ -91,7 +92,7 @@ void BluetoothModule::enterATMode()
 void BluetoothModule::enterScanMode(){
   if (this->vcc != 0){
     delay(500);
-    digitalWrite(this->vcc,LOW);
+    digitalWrite(this->vcc,inverted ? LOW : HIGH);
     delay(1000);
     digitalWrite(this->enable,HIGH);
     delay(1000);

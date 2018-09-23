@@ -13,5 +13,7 @@ class GPSModule: public SoftwareSerial
   private:
     static const uint32_t BAUDRATE = 9600;
     SDCardModule* sd;
+    String dataString = "";
+    String lineString = "";
 
 };
