@@ -1,6 +1,15 @@
 #include "BluetoothModule.h"
-
-BluetoothModule::BluetoothModule(SDCardModule* sd, uint8_t rxPin, uint8_t txPin,uint8_t enable, uint8_t vcc): SoftwareSerial(rxPin,txPin)
+BluetoothModule::BluetoothModule(SDCardModule* sd, uint8_t rxPin, uint8_t txPin,uint8_t enable, uint8_t vcc): SoftwareSerial(rxPin,txPin) {
+  this->sd = sd;
+  this->enable = enable;
+  this->vcc = vcc;
+  this->sd = sd;
+  pinMode(this->enable, OUTPUT);
+  digitalWrite(this->enable,HIGH);
+  pinMode(this->vcc, OUTPUT);
+  digitalWrite(this->vcc,HIGH);
+}
+BluetoothModule::BluetoothModule(SDCardModule* sd, uint8_t rxPin, uint8_t txPin,uint8_t enable, uint8_t vcc, bool inverted): SoftwareSerial(rxPin,txPin)
 {
   this->sd = sd;
   this->enable = enable;
@@ -10,6 +19,7 @@ BluetoothModule::BluetoothModule(SDCardModule* sd, uint8_t rxPin, uint8_t txPin,
   digitalWrite(this->enable,HIGH);
   pinMode(this->vcc, OUTPUT);
   digitalWrite(this->vcc,HIGH);
+  this->inverted = inverted;
 }
 
 BluetoothModule::BluetoothModule(SDCardModule* sd, uint8_t rxPin, uint8_t txPin,uint8_t enable): SoftwareSerial(rxPin,txPin)

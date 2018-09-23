@@ -6,6 +6,7 @@
 class BluetoothModule: public SoftwareSerial
 {
   public:
+    BluetoothModule(SDCardModule* sd, uint8_t rxPin, uint8_t txPin,uint8_t enable, uint8_t vcc, bool inverted);
      BluetoothModule(SDCardModule* sd, uint8_t rxPin, uint8_t txPin,uint8_t enable, uint8_t vcc);
      BluetoothModule(SDCardModule* sd, uint8_t rxPin, uint8_t txPin,uint8_t enable);
      void process(uint32_t count);
@@ -23,5 +24,6 @@ class BluetoothModule: public SoftwareSerial
     SDCardModule* sd;
      uint8_t enable;
      uint8_t vcc=0;
+     bool inverted = true;
      static const uint32_t BAUDRATE = 38400;
 };
