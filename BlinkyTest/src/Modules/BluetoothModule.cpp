@@ -9,6 +9,7 @@ BluetoothModule::BluetoothModule(SDCardModule* sd, uint8_t rxPin, uint8_t txPin,
   digitalWrite(this->enable,HIGH);
   pinMode(this->vcc, OUTPUT);
   digitalWrite(this->vcc,inverted ? HIGH : LOW);
+  this->setTimeout(1000);
 }
 BluetoothModule::BluetoothModule(SDCardModule* sd, uint8_t rxPin, uint8_t txPin,uint8_t enable, uint8_t vcc, bool inverted): SoftwareSerial(rxPin,txPin)
 {
@@ -63,7 +64,7 @@ void BluetoothModule::setup()
   Serial.print(getReply());
   sendATCommand("AT+CMODE=1");
   Serial.print(getReply());
-  sendATCommand("AT+INQM=1,9,1");
+  sendATCommand("AT+INQM=1,1,1");
   Serial.print(getReply());
   sendATCommand("AT+PSWD=\"9999\"");
   Serial.print(getReply());
@@ -129,6 +130,12 @@ void BluetoothModule::process(uint32_t count){
     while (millis()-del < 10000){
       res+=this->getReply();
     }
+    Serial.println(res);
+    this->switchOff();
+
+    // flush
+     while (this->available())
+       this->getReply();
 
     std::regex re("\+INQ:[0-9A-F]{4}:[0-9A-F]{2}:[0-9A-F]{6},[0-9A-F]{6},[0-9A-F]{4}");
     char* line = strtok(const_cast<char*>(res.c_str()), delim);
@@ -151,8 +158,6 @@ void BluetoothModule::process(uint32_t count){
         line = strtok(NULL,delim);
     }
     // digitalWrite(ledPin,LOW);
-    this->switchOff();
-   // flush
-    while (this->available())
-      this->getReply();
+
+
 }

@@ -23,7 +23,11 @@ bool GPSModule::process(uint32_t count)
   u_int8_t kill_count = 50;
   while (isReading && kill_count > 0)
   {
+<<<<<<< HEAD
     // Serial.println("GPS loop");
+=======
+
+>>>>>>> 8cd642afad1e6bc1cc644e605ea3d66e50b58d7f
     if (!this->available()){
       Serial.println("no data");
       kill_count--;
@@ -35,7 +39,6 @@ bool GPSModule::process(uint32_t count)
     if (c == '\n'){
       continue;
     }
-    // Serial.println(lineString);
     if (c == '\r')
     {
 
@@ -76,8 +79,11 @@ bool GPSModule::process(uint32_t count)
       lineString += c;
     }
   }
+<<<<<<< HEAD
 
   //Serial.println(dataString.c_str());
 
+=======
+>>>>>>> 8cd642afad1e6bc1cc644e605ea3d66e50b58d7f
   return kill_count != 0;
 }

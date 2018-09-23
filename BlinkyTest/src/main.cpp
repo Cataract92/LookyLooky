@@ -31,8 +31,8 @@ void setup()
   pinMode(ledPin, OUTPUT);
   digitalWrite(ledPin,LOW);
   Serial.begin(9600);
-
-  delay(10000);
+  blink(3, 500, 500);
+  // delay(10000);
 
   sd = new SDCardModule();
   // christian
@@ -42,34 +42,38 @@ void setup()
   gps = new GPSModule(sd,0,1);
   wifi = new WifiModule(sd,9,10);
 
-  //wifi->begin();
+  wifi->begin();
   gps->begin();
   bl->setup();
 
   Serial.println("Setup Complete!");
-  //blink(2, 250, 250);
+  blink(2, 250, 250);
 }
 
 void loop()
 {
-  Serial.println("loop");
-  //blink(2, 500, 500);
-  if (!gps->process(count)){
-      //blink(3, 250, 250);
-      Serial.println("no GPS");
-      return;
-  } else {
+  Serial.println("measure");
+  blink(2, 500, 500);
+  // if (!gps->process(count)){
+  //     blink(3, 250, 250);
+  //     Serial.println("no GPS");
+  //
+  // } else {
     Serial.println("GPS");
     digitalWrite(ledPin, HIGH);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8cd642afad1e6bc1cc644e605ea3d66e50b58d7f
     wifi->process(count);
 
     // bl process braucht 2,5sek vorlauf bis es gestartet ist (Scan mode)
     bl->process(count);
     // es hat auch 1,5 sek nachlauf (shutdown) -> gesamt 14 sek
     digitalWrite(ledPin, LOW);
-  }
+  // }
 
-  delay(5000);
+  // delay(20000);
 
   count++;
 }
