@@ -146,11 +146,11 @@ void BluetoothModule::process(uint32_t count){
 
     while (line != NULL)
     {
-        Serial.println(line);
+
         ms.Target (line);
-        if (ms.Match ("\+INQ:[0-9A-F]{4}:[0-9A-F]{2}:[0-9A-F]{6},[0-9A-F]{6},[0-9A-F]{4}") > 0)
+        if (ms.Match ("%+INQ:%x%x%x%x:%x%x:%x%x%x%x%x%x,%x%x%x%x%x,%x%x%x%x") > 0)
         {
-            sscanf(line,"+INQ:%14s,%6s,%4s",&address,&classtype,&rssi);
+            sscanf(line,"+INQ:%14s,%5s,%4s",&address,&classtype,&rssi);
 
             char buffer[256];
             sprintf(buffer,"%d,%s,%s,%s\n",count,address,classtype,rssi);
