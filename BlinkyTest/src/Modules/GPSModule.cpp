@@ -12,8 +12,7 @@ void GPSModule::begin()
 bool GPSModule::process(uint32_t count)
 {
   bool isReading = true;
-  String dataString = "";
-  String lineString = "";
+
 
   char validity;
   char timestamp[10];
@@ -21,20 +20,33 @@ bool GPSModule::process(uint32_t count)
   double longitude;
   int numberSatellites;
   float height;
-
-  while (isReading)
+  u_int8_t kill_count = 50;
+  while (isReading && kill_count > 0)
   {
+<<<<<<< HEAD
     //Serial.println("GPS loop");
     if (!this->available()){
       //Serial.println("no data");
       //delay(1000);
+=======
+    // Serial.println("GPS loop");
+    if (!this->available()){
+      Serial.println("no data");
+      kill_count--;
+      delay(100);
+>>>>>>> cfc172e062dc31bc98baf9caf04ba10adba2c3f1
       continue;
     }
     char c = this->read();
 
     if (c == '\n'){
+<<<<<<< HEAD
+=======
+      // Serial.println("n");
+>>>>>>> cfc172e062dc31bc98baf9caf04ba10adba2c3f1
       continue;
     }
+    // Serial.println(lineString);
     if (c == '\r')
     {
 
@@ -76,5 +88,11 @@ bool GPSModule::process(uint32_t count)
     }
   }
 
+<<<<<<< HEAD
   return true;
+=======
+  //Serial.println(dataString.c_str());
+
+  return kill_count != 0;
+>>>>>>> cfc172e062dc31bc98baf9caf04ba10adba2c3f1
 }

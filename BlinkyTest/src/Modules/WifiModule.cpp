@@ -18,12 +18,15 @@ void WifiModule::process(uint8_t count)
   bool isReading = true;
   String lineString = "";
   char buffer[256];
-
-  while (isReading)
+  u_int8_t kill_count = 50;
+  while (isReading && kill_count > 0)
   {
-    if (!this->available())
+    if (!this->available()){
+      Serial.println("no WLAN data");
+      delay(100);      
+      kill_count--;
       continue;
-
+    }
     char c = this->read();
 
     if (c == '\n')
