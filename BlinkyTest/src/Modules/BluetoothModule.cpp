@@ -131,13 +131,13 @@ void BluetoothModule::process(uint32_t count){
     }
 
     std::regex re("\+INQ:[0-9A-F]{4}:[0-9A-F]{2}:[0-9A-F]{6},[0-9A-F]{6},[0-9A-F]{4}");
-    char* line;
+    char* line = strtok(const_cast<char*>(res.c_str()), delim);
 
     char address[15];
     char classtype[7];
     char rssi[7];
 
-    while ((line = strtok(const_cast<char*>(res.c_str()), delim)) != NULL)
+    while (line != NULL)
     {
         if (std::regex_match(line,re))
         {
