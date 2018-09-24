@@ -137,25 +137,38 @@ void BluetoothModule::process(uint64_t count){
      while (this->available()){
        this->getReply();
     }
+    std::vector<String> addresses;
     char* line = strtok(const_cast<char*>(res.c_str()), delim);
     char address[15];
     char classtype[7];
     char rssi[7];
 
     MatchState ms;
-
     while (line != NULL)
     {
-
         ms.Target (line);
         if (ms.Match ("%+INQ:%x%x%x%x:%x%x:%x%x%x%x%x%x,%x%x%x%x%x,%x%x%x%x") > 0)
         {
+
             sscanf(line,"+INQ:%14s,%5s,%4s",address,classtype,rssi);
 
-            char buffer[256];
-            sprintf(buffer,"%u,%s,%s,%s\n",count,address,classtype,rssi);
-            sd->writeToFile("bl.csv",buffer);
-            Serial.printf("%u,%s,%s,%s\n",count,address,classtype,rssi);
+            bool isNewAdress = true;
+            for (std::vector<String>::iterator it=addresses.begin(); it != addresses.end(); ++it)
+            {
+              if (!strcmp(it->c_str(),address))
+              {
+                isNewAdress = false;
+              }
+            }
+
+            if (isNewAdress)
+            {
+              char buffer[256];
+              sprintf(buffer,"%u,%s,%s,%s\n",count,address,classtype,rssi);
+              sd->writeToFile("bl.csv",buffer);
+              Serial.printf("%u,%s,%s,%s\n",count,address,classtype,rssi);
+            }
+
         }
         line = strtok(NULL,delim);
     }
