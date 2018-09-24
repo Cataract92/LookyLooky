@@ -53,11 +53,11 @@ void loop()
 {
   Serial.println("measure");
   blink(2, 500, 500);
-  if (!gps->process()){
-      blink(3, 250, 250);
-      Serial.println("no GPS");
-
-  } else {
+  // if (!gps->process()){
+  //     blink(3, 250, 250);
+  //     Serial.println("no GPS");
+  //
+  // } else {
     Serial.println("GPS");
     digitalWrite(ledPin, HIGH);
 
@@ -67,7 +67,7 @@ void loop()
     bl->process(gps->get_timestamp());
     // es hat auch 1,5 sek nachlauf (shutdown) -> gesamt 14 sek
     digitalWrite(ledPin, LOW);
-  }
+  // }
   gps->newTime();
   delay(20000);
 

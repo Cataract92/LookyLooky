@@ -138,9 +138,9 @@ void BluetoothModule::process(uint64_t count){
        this->getReply();
     }
     char* line = strtok(const_cast<char*>(res.c_str()), delim);
-    char address[15];
-    char classtype[7];
-    char rssi[7];
+    char address[15] = {'\0'};
+    char classtype[7] = {'\0'};
+    char rssi[7] = {'\0'};
 
     MatchState ms;
 
@@ -148,15 +148,29 @@ void BluetoothModule::process(uint64_t count){
     {
 
         ms.Target (line);
+        if (ms.Match ("%+INQ:%x%x%x%x:%x%x:%x%x%x%x%x%x,%x%x%x%x%x%x,%x%x%x%x") > 0)
+        {
+            sscanf(line,"+INQ:%14s,%6s,%4s",address,classtype,rssi);
+        }
         if (ms.Match ("%+INQ:%x%x%x%x:%x%x:%x%x%x%x%x%x,%x%x%x%x%x,%x%x%x%x") > 0)
         {
             sscanf(line,"+INQ:%14s,%5s,%4s",address,classtype,rssi);
-
-            char buffer[256];
-            sprintf(buffer,"%u,%s,%s,%s\n",count,address,classtype,rssi);
-            sd->writeToFile("bl.csv",buffer);
-            Serial.printf("%u,%s,%s,%s\n",count,address,classtype,rssi);
         }
+        if (ms.Match ("%+INQ:%x%x%x%x:%x%x:%x%x%x%x%x,%x%x%x%x%x,%x%x%x%x") > 0)
+        {
+            sscanf(line,"+INQ:%13s,%5s,%4s",address,classtype,rssi);
+        }
+        if (ms.Match ("%+INQ:%x%x%x%x:%x%x:%x%x%x%x%x,%x%x%x%x%x%x,%x%x%x%x") > 0)
+        {
+            sscanf(line,"+INQ:%13s,%6s,%4s",address,classtype,rssi);
+        }
+        if (rssi[0]!='\0') {
+          char buffer[256];
+          sprintf(buffer,"%llu,%s,%s,%s\n",count,address,classtype,rssi);
+          sd->writeToFile("bl.csv",buffer);
+          Serial.printf("%llu,%s,%s,%s\n",count,address,classtype,rssi);
+        }
+
         line = strtok(NULL,delim);
     }
     // digitalWrite(ledPin,LOW);

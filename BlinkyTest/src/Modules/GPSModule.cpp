@@ -40,14 +40,14 @@ bool GPSModule::process()
       Serial.println(lineString.c_str());
       if (lineString.startsWith("$GPRMC"))
       {
-        sscanf(lineString.c_str(),"$GPRMC,%9s,%c",&timestamp,&validity);
+        sscanf(lineString.c_str(),"$GPRMC,%9s,%c",timestamp,&validity);
         Serial.println(timestamp);
         set_time(std::strtoul(timestamp,NULL,10));
-        Serial.printf("%u\n",time);
+        Serial.printf("%llu\n",time);
       }
       if (lineString.startsWith("$GPGGA"))
       {
-        sscanf(lineString.c_str(),"$GPGGA,%9s,%lf,%*c,%lf,%*c,%*c,%d,%*f,%f",&timestamp,&latitude,&longitude,&numberSatellites,&height);
+        sscanf(lineString.c_str(),"$GPGGA,%9s,%lf,%*c,%lf,%*c,%*c,%d,%*f,%f",timestamp,&latitude,&longitude,&numberSatellites,&height);
         Serial.println(timestamp);
         set_time(std::strtoul(timestamp,NULL,10));
         Serial.printf("%u\n",time);
@@ -61,9 +61,9 @@ bool GPSModule::process()
           longitude = intpart+(fractpart / 60)*100;
 
           char buffer[256];
-          sprintf(buffer,"%u,%s,%f,%f,%d,%f\n",time,timestamp,latitude,longitude,numberSatellites,height);
+          sprintf(buffer,"%llu,%f,%f,%d,%f\n",time,latitude,longitude,numberSatellites,height);
           sd->writeToFile("gps.csv",buffer);
-          Serial.printf("%u,%s,%f,%f,%d,%f\n",time,timestamp,latitude,longitude,numberSatellites,height);
+          Serial.printf("%llu,%f,%f,%d,%f\n",time,latitude,longitude,numberSatellites,height);
 
           isReading = false;
         } else

@@ -16,7 +16,7 @@ void WifiModule::begin()
 
 void WifiModule::process(uint64_t count)
 {
-  this->flush();
+
   bool isReading = true;
   String lineString = "";
   char buffer[256];
@@ -78,9 +78,9 @@ void WifiModule::process(uint64_t count)
           Serial.printf("%s,%s,%s,%d,%s\n", BSSIDstr,SSID,encryptionTypeString,channel,isHidden);
         }
 
-        sprintf(buffer,"%d,%s,%d\n",count, BSSIDstr,RSSI);
+        sprintf(buffer,"%llu,%s,%d\n",count, BSSIDstr,RSSI);
         sd->writeToFile("wifi.csv",buffer);
-        Serial.printf("%d,%s,%d\n",count, BSSIDstr,RSSI);
+        Serial.printf("%llu,%s,%d\n",count, BSSIDstr,RSSI);
       }
       lineString = "";
     } else {
