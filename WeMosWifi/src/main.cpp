@@ -61,7 +61,7 @@ void loop() {
     if (isHidden)
       SSID = "none";
 
-    Serial.printf("42,%s,%s,%s,%d,%s,%d\n",BSSIDstr.c_str(),SSID.c_str(),encryptionTypeString.c_str(),channel, isHidden ? "true" : "false" ,RSSI);
+    Serial.printf("42,%s,%s,%s,%d,%s,%d\n",BSSIDstr.c_str(),SSID.c_str(),encryptionTypeString.c_str(),channel, isHidden ? "1" : "0" ,RSSI);
   }
   Serial.print("end\n");
 

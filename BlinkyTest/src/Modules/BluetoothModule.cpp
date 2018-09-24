@@ -130,23 +130,23 @@ void BluetoothModule::process(uint64_t count){
     while (millis()-del < 10000){
       res+=this->getReply();
     }
-    Serial.println(res);
+
     this->switchOff();
 
     // flush
      while (this->available()){
-       this->getReply();
+       res +=this->getReply();
     }
+    // Serial.println(res);
+    std::vector<String> addresses;
     char* line = strtok(const_cast<char*>(res.c_str()), delim);
     char address[15] = {'\0'};
     char classtype[7] = {'\0'};
     char rssi[7] = {'\0'};
 
     MatchState ms;
-
     while (line != NULL)
     {
-
         ms.Target (line);
         if (ms.Match ("%+INQ:%x%x%x%x:%x%x:%x%x%x%x%x%x,%x%x%x%x%x%x,%x%x%x%x") > 0)
         {
@@ -165,10 +165,24 @@ void BluetoothModule::process(uint64_t count){
             sscanf(line,"+INQ:%13s,%6s,%4s",address,classtype,rssi);
         }
         if (rssi[0]!='\0') {
-          char buffer[256];
-          sprintf(buffer,"%llu,%s,%s,%s\n",count,address,classtype,rssi);
-          sd->writeToFile("bl.csv",buffer);
-          Serial.printf("%llu,%s,%s,%s\n",count,address,classtype,rssi);
+          bool isNewAdress = true;
+          for (std::vector<String>::iterator it=addresses.begin(); it != addresses.end(); ++it)
+          {
+            if (!strcmp(it->c_str(),address))
+            {
+              isNewAdress = false;
+            }
+          }
+
+          if (isNewAdress)
+          {
+            addresses.push_back(address);
+            char buffer[256];
+            sprintf(buffer,"%llu,%s,%s,%s\n",count,address,classtype,rssi);
+            sd->writeToFile("bl.csv",buffer);
+            Serial.printf("%llu,%s,%s,%s\n",count,address,classtype,rssi);
+          }
+
         }
 
         line = strtok(NULL,delim);

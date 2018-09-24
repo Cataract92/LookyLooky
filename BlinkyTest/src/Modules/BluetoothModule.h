@@ -3,7 +3,7 @@
 #include <SoftwareSerial.h>
 #include "SDCardModule.h"
 #include "../Regexp/Regexp.h"
-
+#include <vector>
 class BluetoothModule: public SoftwareSerial
 {
   public:

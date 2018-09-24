@@ -4,6 +4,7 @@
  * Turns on an LED on for one second,
  * then off for one second, repeatedly.
  */
+
 #include "Arduino.h"
 #include "Modules/GPSModule.h"
 #include "Modules/BluetoothModule.h"
@@ -31,7 +32,10 @@ void setup()
   digitalWrite(ledPin,LOW);
   Serial.begin(9600);
   blink(3, 500, 500);
-  // delay(10000);
+  // delay(5000);
+  // MatchState ms;
+  // ms.Target("04:C5:A4:C2:9:21,eduroam,unkown,6,false");
+  // Serial.printf("%d", ms.Match ("%x%x?:%x%x?:%x%x?:%x%x?:%x%x?:%x%x?,.+,.+,%d+,%a+"));
 
   sd = new SDCardModule();
   // christian
@@ -53,11 +57,11 @@ void loop()
 {
   Serial.println("measure");
   blink(2, 500, 500);
-  // if (!gps->process()){
-  //     blink(3, 250, 250);
-  //     Serial.println("no GPS");
-  //
-  // } else {
+  if (!gps->process()){
+      blink(3, 250, 250);
+      Serial.println("no GPS");
+      delay(20000);
+  } else {
     Serial.println("GPS");
     digitalWrite(ledPin, HIGH);
 
@@ -67,8 +71,8 @@ void loop()
     bl->process(gps->get_timestamp());
     // es hat auch 1,5 sek nachlauf (shutdown) -> gesamt 14 sek
     digitalWrite(ledPin, LOW);
-  // }
+  }
   gps->newTime();
-  delay(20000);
+  delay(5000);
 
 }
