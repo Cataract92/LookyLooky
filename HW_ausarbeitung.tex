@@ -1,0 +1,149 @@
+\documentclass[a4paper,11pt, ngerman]{scrartcl}
+\addtokomafont{disposition}{\rmfamily}
+\usepackage[utf8]{inputenc}
+\usepackage[german]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{rotating}
+\usepackage{paralist}
+\usepackage{setspace}
+\usepackage{pdfpages}
+\usepackage{pdflscape}
+\usepackage{longtable}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{enumitem}
+\usepackage{cancel}
+\usepackage{wrapfig}
+\usepackage[noend]{algpseudocode}
+\usepackage[pdfborder={0 0 0}]{hyperref}
+\usepackage{cleveref}
+\usepackage{array}
+\usepackage{float}
+\usepackage{parallel}
+\usepackage[left=2.5cm,right=2.5cm,top=3cm,bottom=3cm]{geometry}
+\usepackage{scrpage2}
+\usepackage{bibgerm}
+\usepackage[style=numeric, maxcitenames=2, backend=bibtex]{biblatex}
+\usepackage[babel,german=quotes]{csquotes}
+
+\usepackage{relsize}
+\usepackage{subcaption}
+
+\setcapindent{1em}
+
+\defbibheading{head}{\chapter{Quellen und verwendete Ressourcen}}
+
+\lstset{
+basicstyle=\footnotesize,
+frame=single,
+language=C++,
+captionpos=b,
+breaklines=true,
+columns=flexible,
+tabsize=4
+}
+
+\makeatletter
+\def\clearwf{\par{\count@\c@WF@wrappedlines\zz}\par}
+
+\def\zz{{%
+\ifnum\count@>\@ne
+\noindent\mbox{~~}\\%
+\advance\count@\m@ne
+\expandafter\zz
+\else
+\ifhmode\unskip\unpenalty\fi
+\fi}}
+
+\makeatother
+
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}[definition]{Lemma}
+\newtheorem{example}[definition]{Beispiel}
+\crefname{chapter}{Kapitel}{Kapitel}
+\crefname{section}{Abschnitt}{Abschnitte}
+\crefname{lemma}{Lemma}{Lemmata}
+\crefname{definition}{Definition}{Definitionen}
+\crefname{example}{Beispiel}{Beispiele}
+\crefname{figure}{Abbildung}{Abbildungen}
+\crefname{line}{Zeile}{Zeilen}
+\crefname{algorithm}{Algorithmus}{Algorithmen}
+\crefname{lstlisting}{Codeausschnitt}{Codeausschnitte}
+\crefname{listing}{Codeausschnitt}{Codeausschnitte}
+\floatname{algorithm}{Algorithmus}
+
+
+\renewcommand{\i}{\ensuremath{\mathrm{i}}}
+\newcommand{\true}{\ensuremath{\text{true}}}
+\newcommand{\false}{\ensuremath{\text{false}}}
+
+\renewcommand{\lstlistingname}{Codeausschnitt}% Listing -> Algorithm
+\renewcommand{\lstlistlistingname}{Liste der \lstlistingname e}
+
+\renewcommand*\listalgorithmname{Algorithmenverzeichnis}
+\algnewcommand\algorithmicinput{\textbf{Input:}}
+\algnewcommand\INPUT{\item[\algorithmicinput]}
+\algnewcommand\algorithmicoutput{\textbf{Output:}}
+\algnewcommand\OUTPUT{\item[\algorithmicoutput]}
+\MakeRobust{\Call}
+
+
+\usepackage{titling}
+\pretitle{\begin{flushleft} \end{flushleft}\vskip 2em
+\begin{flushright}\LARGE}
+\posttitle{\par\end{flushright}\vskip 0.5em}
+\preauthor{\vfill\begin{flushright}\large \lineskip 0.5em}
+\postauthor{{}\\\authorAddon\par\end{flushright}}
+\predate{\begin{flushright}\large}
+\postdate{\par\titlehead\end{flushright}}
+\renewcommand*{\postnotedelim}{\addcolon\space}
+\DeclareNameAlias{sortname}{last-first}
+\DeclareNameAlias{default}{last-first}
+\DeclareFieldFormat{postnote}{#1}
+\DeclareFieldFormat{pages}{#1}
+\renewcommand{\cite}{\parencite}
+\renewcommand*{\multinamedelim}{/\space}
+\renewcommand*{\finalnamedelim}{/\space}
+
+\pagestyle{scrheadings}
+\renewcommand{\titlehead}{Ausarbeitung\\ Hardwarenahe Systemprogrammierung\\
+Prof. Dr. Sturm}
+\newcommand{\authorAddon}{}
+\author{Christian Stahl\\Nico Feld}
+%\title{Julia-Mengen quadratischer Funktionen\\{\smaller Approximation und Garantien pixelbasierter Algorithmen}}
+\title{Bau eines Warddriving-Moduls}
+\date{\today}
+
+\newcommand{\param}[1]{{\smaller Parameter: \lstinline!#1!}}
+
+\begin{document}
+\pagenumbering{gobble}
+\maketitle
+\pagebreak
+\pagenumbering{arabic}
+\tableofcontents
+\pagebreak
+%\listoffigures
+%\listofalgorithms
+%\lstlistoflistings
+%\listoftables
+\section{Motivation \& Idee}
+\section{Aufbau \& Probleme}
+\subsection{Teensy 3.6}
+\subsection{WLAN-Modul}
+\subsection{GPS-Modul}
+\subsection{Bluetooth-Modul HC-05}
+Die besondere Schwierigkeit bei der Implementierung der Bluetooth-Geräteerfassung mithilfe des Moduls HC05 war, dass das Modul, unseres Wissens nach aufgrund eines Firmware-Fehlers, nicht wie dokumentiert arbeitet. Der von uns benötigte Inquire-Modus soll laut Dokumentation mit dem Befehlscode \enquote{AT+INQ} gestartet werden und soll mit \enquote{AT+INQC} gestoppt werden können. Beide Befehle erzeugten bei unseren Tests lediglich Fehlermeldungen, wobei der von \enquote{AT+INQ} geworfene Fehlercode \enquote{1F} nicht dokumentiert ist.\\
+Alternativ ist es möglich, den Inquire-Mode bereits beim Start des Moduls zu aktivierten, jedoch reagiert es in diesem Modus auf keine Eingaben, was zum aktuellen Workaround führt.\\
+Zunächst wir das Modul im AT-Modus konfiguriert und anschließend abgeschaltet, indem es von der Stromversorgung getrennt wird. Diese Trennung führen wir durch einen logischen Pegel herbei, den wir an einen der Transistoren zwischen der Stromquelle (dem 5V-Pin des Teensy) und dem VCC-Pin des Moduls eingebaut haben.
+\subsection{GSM-Modul SIM800L}
+\section{Fazit}
+*** Mit etwas mehr Geld wären funktioniertende Komponenten drin gewesen, aber so mit den seltsamen eigenschaften klar zu kommen war eine interessante erfahrung -> wenn man sich die teile später nicht immer aussuchen darf. ***
+\nocite{*}
+%\printbibliography[heading=head]%\addcontentsline{toc}{chapter}{Literatur}
+\end{document}
