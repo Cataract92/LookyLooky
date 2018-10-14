@@ -1,3 +1,4 @@
+
 \documentclass[a4paper,11pt, ngerman]{scrartcl}
 \addtokomafont{disposition}{\rmfamily}
 \usepackage[utf8]{inputenc}
@@ -133,17 +134,39 @@ Prof. Dr. Sturm}
 %\lstlistoflistings
 %\listoftables
 \section{Motivation \& Idee}
+Diese Arbeit beschäftigt sich mit dem Erstellen eines Wardriving-Moduls. \grqq Wardriving\grqq{} bezeichnet dabei das systematische Erfassen von WLAN-Netzen an verschiedenen Positionen und deren anschließender Auswertung. Anschließend können dann die erfassten WLAN-Netze der Position zugeordnet werden und letztendlich kartographiert werden. Dafür wird ein extra Modul mit Positionsbestimmung (GPS) und WLAN-Komponente benötigt. Als Motivation kann einerseits das Finden von unsicheren Netzwerken und der anschließenden Meldung an den Besitzer oder aber auch einfach die Kartographie von offenen WLAN-Netzen für Touristen o.Ä. Im Rahmen des Moduls \grqq Hardware-nahe Programmierung\grqq{} haben wir sein solches Modul sowohl programmiert als auch zusammengebaut. Dabei haben wir das Modul um die Funktion erweitert Bluetooth-Geräte und ursprünglich auch die Netzabdeckung via GSM-Modul zu erfassen.
 \section{Aufbau \& Probleme}
 \subsection{Teensy 3.6}
-\subsection{WLAN-Modul}
+Als programmierbares \grqq Herzstück\grqq{} des Modul haben wir uns für den Teensy 3.6 entschieden, da er sowohl ausreichend Speicher besitzt um die reinkommenden Daten zu verarbeiten als auch über einen eingebauten SD-Karten Slot verfügt wodurch wir die erfassten Daten auf eine SD-Karte schreiben können. Des weiteren konnte er sehr einfach mittels der \grqq PlatformIO\grqq{}-Erweiterung des Editors \grqq Atom\grqq{} programmiert und gestartet werden. Die hohe Anzahl der Pins, genauer der UART-Pins, erlaubte uns außerdem die viele anderen Module ohne Schwierigkeiten zu anzuschließen.
 \subsection{GPS-Modul}
+Für das GPS-Modul verwenden wir einen Ublox NEO 6M.
+Das GPS-Modul stellt die wichtigste Komponente des Wardriving-Moduls da, denn ohne die Positionsbestimmung kann keine Zuordnung der restlichen Daten erfolgen. Somit gibt dieses Modul auch den \grqq Takt\grqq{} für die restlichen Module an: Erst wenn die Positionsbestimmung erfolgreich war, werden die Informationen der anderen Module (WLAN und Bluetooth) ausgewertet. Diese Positionsbestimmung erfolgt vom Modul jede Sekunden und wird per UART an den Teensy übertragen.
+
+Die Informationen werden vom Modul im NMEA 0183-Standard \footnote{https://de.wikipedia.org/wiki/NMEA\_0183} übermittelt. Dieser Standard beschreibt die Kodierung der erfassten Daten in ASCII-basierte Datensätze. Dabei werden vom Gerät mehrere dieser Datensätze pro Sekunde erfasst. In dieser Arbeit werden lediglich die beiden Datensätze \textit{Recommended Minimum Sentence C (RMC)} und \textit{Global Positioning System Fix Data (GGA)} ausgewertet. Jeder dieser Datensätze beginnt immer mit einem Identifier. In diesem Fall wären das der Identifier \grqq \$GPRMC,\grqq{} bzw. \grqq \$GPGGA,\grqq{}. Anschließend folgen die Informationen des Datensatzes separiert mit Kommata. Eine mögliche Kodierung eines RMC-Datensatzen wäre also:
+\begin{lstlisting}
+$GPRMC,162614,A,5230.5900,N,01322.3900,E,10.0,90.0,131006,1.2,E,A*13
+\end{lstlisting}
+Aus diesen Beiden Datensätzen werden in dieser Arbeit die Informationen \textit{Status, Uhrzeit, Breitengrad, Längengrad, Anzahl der Satelliten und Höhe} ausgelesen. Falls der Status nicht \grqq A\grqq{} beträgt, ist dies ein Zeichen dafür, dass die Positionsbestimmung nicht erfolgreich verlief. Falls dies der Fall ist wiederholt das GPS-Modul die eine Positionsbestimmung solange bis eine erfolgreiche Bestimmung erfolgte. Bei einer erfolgreichen Positionsbestimmung werden die restlichen Informationen in der \grqq gps.csv\grqq{} auf der SD-Karte gespeichert. Anschließend werden die Informationen der anderen Module abgefragt, welche anhand der Uhrzeit nun eindeutig der bestimmten Position zugeordnet werden können.
+
+\subsection{WLAN-Modul}
+Für die WLAN-Modul verwenden wir das einen \grqq WEMOS D1 MINI\grqq . Dieses Modul benötigt eine eigene Firmware, welche in unserem Fall lediglich jede Sekunde alle WLAN-Netze in der Umgebung erkennt, anschließend jedes Netzwerk nach BSSID, Name (SSID), Typ der Verschlüsselung, Channel, Sichtbarkeit und RSSI (Verbindungsstärke) scannt und schließlich diese Daten per UART an den Teensy überträgt. Da die Abfrage im Teensy nach diesen Daten (wifi->available()) jederzeit eintreten kann, also auch während des Schreibprozesses des WLAN-Moduls, ist es wichtig nur die Daten auszuwerten wenn sie vollständig sind und erst zu beenden, wenn alle Daten übertragen wurden. Um dies zu gewährleisten fängt jede Zeile, die vom WLAN-Modul übertragen werden mit \grqq42,\grqq{} an und das Ende der Übertragung wird mit der Zeile \grqq end\grqq{} gekennzeichnet. Eine mögliche Ausgabe des Moduls wäre somit:
+\begin{lstlisting}
+42,54:67:51:42:CF:E0,KabelBox-6700,WPA2/PSK,1,0,-90
+42,46:67:51:42:CF:E0,Vodafone Hotspot,open,11,0,-94
+42,A0:E4:CB:C4:86:B1,irie,WPA2/PSK,6,0,-92
+42,D0:6F:82:C7:CF:35,WLAN-QNN5B4,WPA2/PSK,0,0,-91
+end
+\end{lstlisting}
+Diese wird wie folgt vom Teensy interpretiert: Beginnt eine Zeile weder mit \grqq 42,\grqq{} noch mit \grqq end\grqq{} wird diese Zeile verworfen, da es sich um Reste einer vorherigen Übertragung handelt. Andernfalls können durch die aktuelle Uhrzeit des GPS-Moduls die so übermittelten Daten der Position eindeutig zugeordnet werden. Um jedoch redundante Informationen, wie Name oder Typ der Verschlüsselung nicht jedes mal zu speichern, wenn ein Netzwerk entdeckt wird, werden zwei CSV-Dateien erzeugt. Wird ein Netzwerk mit bisher unbekannter BSSID erkannt so werden lediglich die Informationen \textit{BSSID, Name, Verschlüsselung, Channel und Sichtbarkeit} in die \grqq networks.csv\grqq{} geschrieben. Handelt es sich jedoch um ein bereits bekanntes Netzwerk so werden die Informationen \textit{Uhrzeit, BSSID, RSSI} in die \grqq wifi.csv \grqq{} geschrieben. So sind alle benötigten Informationen stets über die BSSID eindeutig zuordenbar ohne Informationen unnötig oft zu speichern.
+
+
 \subsection{Bluetooth-Modul HC-05}
 Die besondere Schwierigkeit bei der Implementierung der Bluetooth-Geräteerfassung mithilfe des Moduls HC05 war, dass das Modul, unseres Wissens nach aufgrund eines Firmware-Fehlers, nicht wie dokumentiert arbeitet. Der von uns benötigte Inquire-Modus soll laut Dokumentation mit dem Befehlscode \enquote{AT+INQ} gestartet werden und soll mit \enquote{AT+INQC} gestoppt werden können. Beide Befehle erzeugten bei unseren Tests lediglich Fehlermeldungen, wobei der von \enquote{AT+INQ} geworfene Fehlercode \enquote{1F} nicht dokumentiert ist.\\
 Alternativ ist es möglich, den Inquire-Mode bereits beim Start des Moduls zu aktivierten, jedoch reagiert es in diesem Modus auf keine Eingaben, was zum aktuellen Workaround führt.\\
 Zunächst wir das Modul im AT-Modus konfiguriert und anschließend abgeschaltet, indem es von der Stromversorgung getrennt wird. Diese Trennung führen wir durch einen logischen Pegel herbei, den wir an einen der Transistoren zwischen der Stromquelle (dem 5V-Pin des Teensy) und dem VCC-Pin des Moduls eingebaut haben.
 \subsection{GSM-Modul SIM800L}
 \section{Fazit}
-*** Mit etwas mehr Geld wären funktioniertende Komponenten drin gewesen, aber so mit den seltsamen eigenschaften klar zu kommen war eine interessante erfahrung -> wenn man sich die teile später nicht immer aussuchen darf. ***
+*** Mit etwas mehr Geld wären funktionierende Komponenten drin gewesen, aber so mit den seltsamen Eigenschaften klar zu kommen war eine interessante Erfahrung -> wenn man sich die teile später nicht immer aussuchen darf. ***
 \nocite{*}
 %\printbibliography[heading=head]%\addcontentsline{toc}{chapter}{Literatur}
 \end{document}
