@@ -117,7 +117,7 @@ Prof. Dr. Sturm}
 \newcommand{\authorAddon}{}
 \author{Christian Stahl\\Nico Feld}
 %\title{Julia-Mengen quadratischer Funktionen\\{\smaller Approximation und Garantien pixelbasierter Algorithmen}}
-\title{Bau eines Warddriving-Moduls}
+\title{Bau eines Wardriving-Moduls}
 \date{\today}
 
 \newcommand{\param}[1]{{\smaller Parameter: \lstinline!#1!}}
@@ -136,8 +136,15 @@ Prof. Dr. Sturm}
 \section{Motivation \& Idee}
 Diese Arbeit beschäftigt sich mit dem Erstellen eines Wardriving-Moduls. \grqq Wardriving\grqq{} bezeichnet dabei das systematische Erfassen von WLAN-Netzen an verschiedenen Positionen und deren anschließender Auswertung. Anschließend können dann die erfassten WLAN-Netze der Position zugeordnet werden und letztendlich kartographiert werden. Dafür wird ein extra Modul mit Positionsbestimmung (GPS) und WLAN-Komponente benötigt. Als Motivation kann einerseits das Finden von unsicheren Netzwerken und der anschließenden Meldung an den Besitzer oder aber auch einfach die Kartographie von offenen WLAN-Netzen für Touristen o.Ä. Im Rahmen des Moduls \grqq Hardware-nahe Programmierung\grqq{} haben wir sein solches Modul sowohl programmiert als auch zusammengebaut. Dabei haben wir das Modul um die Funktion erweitert Bluetooth-Geräte und ursprünglich auch die Netzabdeckung via GSM-Modul zu erfassen.
 \section{Aufbau \& Probleme}
+Zur Erfassung der GPS-Daten, der WLANs, der Bluetooth-Ger"ate, sowie der GSM-Abdeckung, haben wir die verschiedenen Module sternf"ormig um einen Teensy 3.6 angeordnet, welcher die zentrale Koordination und Datenspeicherung "ubernimmt. Die verschiedenen Module werden per UART verbunden, die Spannungsversorgung liefert eine Powerbank per USB, teils wird sie "uber den Teensy weitergereicht. Dazu verwenden wir, wie in \cref{abb:compl} zu sehen, rote und schwarze Dr"ahte, um sie von den Leitungen f"ur logische Pegel zu unterscheiden.\\
+Bei Start unseres Moduls initialisiert der Teensy die angeschlossenen Module. Anschlie"send wird in einer Schleife stets zun"achst die GPS-Information abgefragt. Um Endlosschleifen zu vermeiden wurden alle Module um eine Abbruchbedingung (kill-count) erweitert, sodass kein Modul den Gesamtablauf blockieren kann. Sollte nach der gegebenen Anzahl Versuche keine verwertbare Information erfasst sein, so bricht die Erfassung des einzelnen Moduls ab. Wird kein GPS-Punkt gefunden, so haben wir die anderen Module nicht abgefragt, sondern eine Wartezeit von 20 Sekunden eingebaut, um zu verhindern, dass die Module hei"s laufen, was bei ersten Implementierungen zu Problemen f"uhrte.
+
+\begin{figure}[H]
+	\includegraphics[width=.95\linewidth]{Aufbau.JPG}\caption{Aufbau unseres Wardriving-Moduls}\label{abb:compl}
+\end{figure}
+
 \subsection{Teensy 3.6}
-Als programmierbares \grqq Herzstück\grqq{} des Modul haben wir uns für den Teensy 3.6 entschieden, da er sowohl ausreichend Speicher besitzt um die reinkommenden Daten zu verarbeiten als auch über einen eingebauten SD-Karten Slot verfügt wodurch wir die erfassten Daten auf eine SD-Karte schreiben können. Des weiteren konnte er sehr einfach mittels der \grqq PlatformIO\grqq{}-Erweiterung des Editors \grqq Atom\grqq{} programmiert und gestartet werden. Die hohe Anzahl der Pins, genauer der UART-Pins, erlaubte uns außerdem die viele anderen Module ohne Schwierigkeiten zu anzuschließen.
+Als programmierbares \grqq Herzstück\grqq{} des Moduls haben wir uns für den Teensy 3.6 entschieden, da er sowohl ausreichend Speicher besitzt um die ankommenden Daten zu verarbeiten als auch über einen eingebauten SD-Karten Slot verfügt, wodurch wir die erfassten Daten auf eine SD-Karte schreiben können. Des Weiteren konnte er sehr einfach mittels der \grqq PlatformIO\grqq{}-Erweiterung des Editors \grqq Atom\grqq{} programmiert und gestartet werden. Die hohe Anzahl der Pins, genauer der UART-Pins, erlaubte uns außerdem die viele anderen Module ohne Schwierigkeiten zu anzuschließen.
 \subsection{GPS-Modul}
 Für das GPS-Modul verwenden wir einen Ublox NEO 6M.
 Das GPS-Modul stellt die wichtigste Komponente des Wardriving-Moduls da, denn ohne die Positionsbestimmung kann keine Zuordnung der restlichen Daten erfolgen. Somit gibt dieses Modul auch den \grqq Takt\grqq{} für die restlichen Module an: Erst wenn die Positionsbestimmung erfolgreich war, werden die Informationen der anderen Module (WLAN und Bluetooth) ausgewertet. Diese Positionsbestimmung erfolgt vom Modul jede Sekunden und wird per UART an den Teensy übertragen.
@@ -161,10 +168,20 @@ Diese wird wie folgt vom Teensy interpretiert: Beginnt eine Zeile weder mit \grq
 
 
 \subsection{Bluetooth-Modul HC-05}
-Die besondere Schwierigkeit bei der Implementierung der Bluetooth-Geräteerfassung mithilfe des Moduls HC05 war, dass das Modul, unseres Wissens nach aufgrund eines Firmware-Fehlers, nicht wie dokumentiert arbeitet. Der von uns benötigte Inquire-Modus soll laut Dokumentation mit dem Befehlscode \enquote{AT+INQ} gestartet werden und soll mit \enquote{AT+INQC} gestoppt werden können. Beide Befehle erzeugten bei unseren Tests lediglich Fehlermeldungen, wobei der von \enquote{AT+INQ} geworfene Fehlercode \enquote{1F} nicht dokumentiert ist.\\
-Alternativ ist es möglich, den Inquire-Mode bereits beim Start des Moduls zu aktivierten, jedoch reagiert es in diesem Modus auf keine Eingaben, was zum aktuellen Workaround führt.\\
-Zunächst wir das Modul im AT-Modus konfiguriert und anschließend abgeschaltet, indem es von der Stromversorgung getrennt wird. Diese Trennung führen wir durch einen logischen Pegel herbei, den wir an einen der Transistoren zwischen der Stromquelle (dem 5V-Pin des Teensy) und dem VCC-Pin des Moduls eingebaut haben.
+Zur Erfassung der verf"ugbaren Bluetooth-Ger"ate verwenden wir ein HC-05-Modul. Dieses verf"ugt "uber zwei Betriebsmodi. Der AT-Modus dient der Konfiguration des Moduls und ist aktiv, wenn der Enable-Pin des Moduls auf 3.3V (high) liegt und anschie"send die Spannungsversorgung zugeschaltet wird. In diesem Modus blinkt die LED auf dem Bauteil langsam, etwa im Halbsekundentakt. Der zweite Betriebsmodus, der Inquire-Mode, ist aktiv, wenn das Modul mit Betriebsspannung versorgt wird und am Enable-Pin logisch 0 (low) anliegt.\\
+Die besondere Schwierigkeit bei der Implementierung der Bluetooth-Geräteerfassung mithilfe des Moduls lag darin, dass das Modul, unseres Wissens nach aufgrund eines Firmware-Fehlers, nicht wie dokumentiert arbeitet. Der von uns benötigte Inquire-Modus soll laut Dokumentation mit dem Befehlscode \enquote{AT+INQ} gestartet werden und soll mit \enquote{AT+INQC} gestoppt werden können. Beide Befehle erzeugten bei unseren Tests lediglich Fehlermeldungen, wobei der von \enquote{AT+INQ} geworfene Fehlercode \enquote{1F} nicht dokumentiert ist.\\
+Da wir den Inquire-Mode bereits beim Start des Moduls aktivieren k"onnen, das Modul jedoch dann durchgehend Daten an den Teensy sendet, haben wir ein Workaround entwickelt, um die beiden nicht-funktionsf"ahigen Befehle zu umgehen.\\
+
+\begin{figure}[H]
+	\includegraphics[width=.95\linewidth]{BT.JPG}\caption{Bluetooth-Modul und Schaltung zur Spannungsversorgung}
+\end{figure}
+
+Zunächst wir das Modul im AT-Modus konfiguriert und anschließend abgeschaltet, indem es von der Stromversorgung getrennt wird. Diese Trennung führen wir durch einen logischen Pegel (hellblau) herbei, den wir an einen der Transistoren zwischen der Stromquelle (dem 5V-Pin des Teensy) und dem VCC-Pin des Moduls eingebaut haben. Zu Debug-Zwecken ist afu der Platine eine LED (zwischen den beiden Wiederst"anden) verbaut, die leuchtet, solange das Modul mit Strom versorgt ist. Aufgrund der Hardwarelatenzen ben"otigen wir zum An- und Abschalten des Moduls jeweils circa 1,5~Sekunden, was die Zeit zur Erfassung aller Daten an einem GPS-Punkt deutlich verl"angert. Um mit der Datenerfassung zu beginnen, aktivieren wir das Modul im Inquire-Mode und lesen die Ankommenden Daten ein. Nach 10 Sekunden schalten wir das Modul wieder ab und lesen die restlichen Daten, welche eventuell im Puffer des Teensy liegen ein. Wir erhalten einen String, den wir an den Zeilenumbr"uchen trennen, um die einzelnen Datentupel zu isolieren. Anschlie"send filtern wir mithilfe regul"arer Audr"ucke die validen Tupel, um sie weiter zu verarbeiten. Dabei gehen wir ab diesem Punkt analog zum WLAN vor.\\
+Durch die Latenzen und die relativ lange Erfassungzeit dauert eine Abfrage der Bluetooth-Ger"ate etwa 14,5 Sekunden und nimmt somit einen Gro"steil der gesamten Erfassungszeit ein. Diesen Kompromiss sind wir eingegangen, um die Erfassung der Bluetooth-Daten zu erm"oglichen.
 \subsection{GSM-Modul SIM800L}
+Das SIM800L-Modul hat uns gr"o"sere Schwierigkeiten bereitet, als alle anderen Module. Bis zuletzt war es uns nicht m"oglich es einzubinden. Eine Schwierigkeit bestand darin, dass verschiedene Bibliotheken f"ur das Modul existieren, welche sich bei bereits bei der Initialisierung unterscheiden. Auch gibt es widerspr"uchliche Aussagen dar"uber, ob die verwendete Simkarte pingesch"utzt sein darf oder nicht.\\
+Das gr"o"ste Problem jedoch ist, dass das Modul, unabh"angig von der verwendeten Bibliothek auf keine Eingaben reagiert. Es soll, wie alle anderen Module, per UART auf AT-Befehle reagieren, erzeugte bei unseren Tests jedoch nie eine Antwort. 
+F"ur verschiedene Szenarien haben wir Schaltungen eingebaut und getestet. Ohne anliegende Spannung am Reset-Pin, mit Reset beim Start auf high und anschlie"send low, und konstant high oder low war es uns nicht m"oglich vom Modul eine Antwort zu erhalten. Somit mussten wir schlie"slich die Einbindung des GSM-Moudls aufgeben.
 \section{Fazit}
 *** Mit etwas mehr Geld wären funktionierende Komponenten drin gewesen, aber so mit den seltsamen Eigenschaften klar zu kommen war eine interessante Erfahrung -> wenn man sich die teile später nicht immer aussuchen darf. ***
 \nocite{*}
