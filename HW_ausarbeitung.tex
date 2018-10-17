@@ -153,7 +153,7 @@ Die Informationen werden vom Modul im NMEA 0183-Standard \footnote{https://de.wi
 \begin{lstlisting}
 $GPRMC,162614,A,5230.5900,N,01322.3900,E,10.0,90.0,131006,1.2,E,A*13
 \end{lstlisting}
-Aus diesen Beiden Datensätzen werden in dieser Arbeit die Informationen \textit{Status, Uhrzeit, Breitengrad, Längengrad, Anzahl der Satelliten und Höhe} ausgelesen. Falls der Status nicht \grqq A\grqq{} beträgt, ist dies ein Zeichen dafür, dass die Positionsbestimmung nicht erfolgreich verlief. Falls dies der Fall ist wiederholt das GPS-Modul die eine Positionsbestimmung solange bis eine erfolgreiche Bestimmung erfolgte. Bei einer erfolgreichen Positionsbestimmung werden die restlichen Informationen in der \grqq gps.csv\grqq{} auf der SD-Karte gespeichert. Anschließend werden die Informationen der anderen Module abgefragt, welche anhand der Uhrzeit nun eindeutig der bestimmten Position zugeordnet werden können.
+Aus diesen Beiden Datensätzen werden in dieser Arbeit die Informationen \textit{Status, Uhrzeit, Breitengrad, Längengrad, Anzahl der Satelliten und Höhe} ausgelesen. Falls der Status nicht \grqq A\grqq{} beträgt, ist dies ein Zeichen dafür, dass die Positionsbestimmung nicht erfolgreich verlief. Falls dies der Fall ist wiederholt das GPS-Modul nach 20 Sekunden Pause die eine Positionsbestimmung bis letztendlich eine erfolgreiche Bestimmung erfolgte. Bei einer erfolgreichen Positionsbestimmung werden die restlichen Informationen in die \grqq gps.csv\grqq{} auf der SD-Karte geschrieben. Anschließend werden die Informationen der anderen Module abgefragt, welche anhand der Uhrzeit nun eindeutig der bestimmten Position zugeordnet werden können.
 
 \subsection{WLAN-Modul}
 Für die WLAN-Modul verwenden wir das einen \grqq WEMOS D1 MINI\grqq . Dieses Modul benötigt eine eigene Firmware, welche in unserem Fall lediglich jede Sekunde alle WLAN-Netze in der Umgebung erkennt, anschließend jedes Netzwerk nach BSSID, Name (SSID), Typ der Verschlüsselung, Channel, Sichtbarkeit und RSSI (Verbindungsstärke) scannt und schließlich diese Daten per UART an den Teensy überträgt. Da die Abfrage im Teensy nach diesen Daten (wifi->available()) jederzeit eintreten kann, also auch während des Schreibprozesses des WLAN-Moduls, ist es wichtig nur die Daten auszuwerten wenn sie vollständig sind und erst zu beenden, wenn alle Daten übertragen wurden. Um dies zu gewährleisten fängt jede Zeile, die vom WLAN-Modul übertragen werden mit \grqq42,\grqq{} an und das Ende der Übertragung wird mit der Zeile \grqq end\grqq{} gekennzeichnet. Eine mögliche Ausgabe des Moduls wäre somit:
@@ -182,8 +182,22 @@ Durch die Latenzen und die relativ lange Erfassungzeit dauert eine Abfrage der B
 Das SIM800L-Modul hat uns gr"o"sere Schwierigkeiten bereitet, als alle anderen Module. Bis zuletzt war es uns nicht m"oglich es einzubinden. Eine Schwierigkeit bestand darin, dass verschiedene Bibliotheken f"ur das Modul existieren, welche sich bei bereits bei der Initialisierung unterscheiden. Auch gibt es widerspr"uchliche Aussagen dar"uber, ob die verwendete Simkarte pingesch"utzt sein darf oder nicht.\\
 Das gr"o"ste Problem jedoch ist, dass das Modul, unabh"angig von der verwendeten Bibliothek auf keine Eingaben reagiert. Es soll, wie alle anderen Module, per UART auf AT-Befehle reagieren, erzeugte bei unseren Tests jedoch nie eine Antwort. 
 F"ur verschiedene Szenarien haben wir Schaltungen eingebaut und getestet. Ohne anliegende Spannung am Reset-Pin, mit Reset beim Start auf high und anschlie"send low, und konstant high oder low war es uns nicht m"oglich vom Modul eine Antwort zu erhalten. Somit mussten wir schlie"slich die Einbindung des GSM-Moudls aufgeben.
+\section{Kartographie}
+Um die Daten nun grafisch auszuwerten wurde das Geoinformationssystem \grqq QGIS\grqq{} verwendet. Dieses erlaubt es die erstellten CSV-Dateien zu laden und als geographische Punkte darzustellen. Dazu ist es lediglich notwendig die Spalten \grqq Longitude\grqq{} und \grqq Latitude\grqq{} der gps.csv auszuwählen und als X- und Y-Koordinaten der Punkte zu kennzeichnen. Die anderen Datensätze können nun mit bekannten Datenbankbefehlen, wie z.B. JOIN verknüpft und ausgewerten werden. Folgende Abbildung zeigt dabei eine Heatmap über die Anzahl von WLAN-Netzen in Tarforst.
+
+\begin{figure}[H]
+\begin{center}
+	\includegraphics[width=.7\linewidth]{map.png}\caption{Heatmap von erfassten WLAN-Netzwerken}
+	\end{center}
+\end{figure}
 \section{Fazit}
-*** Mit etwas mehr Geld wären funktionierende Komponenten drin gewesen, aber so mit den seltsamen Eigenschaften klar zu kommen war eine interessante Erfahrung -> wenn man sich die teile später nicht immer aussuchen darf. ***
+Die Entwicklung des Wardriving-Moduls hat deutlich gemacht, dass die Hauptschwierigkeit bei der Entwicklung eines Projekts mit vielen einzelnen Komponenten es ist sich mit deren genauen Funktionsweise auseinanderzusetzen und sie letztendlich harmonisch miteinander kommunizieren zu lassen. Die Schwierigkeiten mit dem Bluetooth-Modul zeigten, dass eine richtige, vollständige Dokumentation nicht immer gegeben ist und man häufig auf eigene Workarounds und Tests angewiesen ist um die gewünschte Funktionalität zu gewährleisten. 
+So wurde auch durch das GSM-Modul deutlich, dass es bereits beim Anschließen der Komponenten zu nicht nachvollziehbaren Fehlern kommen kann, welche bis zum Schluss nicht gelöst werden konnten. Da es sich aber bei diesem Modul um ein \grqq proof of concept\grqq{}-Projekt handelt, waren die einzelnen Module im unteren Preisspektrum angeordnet. Hochwertigere und teurere Module könnten einige diese Probleme nicht aufweisen und eine komplettere, gepflegtere Dokumentation besitzen, was die Arbeit damit vereinfachen würde.
+
+Letztendlich lässt sich jedoch zusammenfassen, dass die Entwicklung eines Wardriving-Moduls definitiv möglich ist. Auch Erweiterungen wie die Erkennung von Bluetooth-Geräten sind im Prinzip problemlos umsetzbar.
+
+Der Quellcode des Projektes findet man unter:
+\url{https://github.com/Cataract92/LookyLooky/tree/test}
 \nocite{*}
 %\printbibliography[heading=head]%\addcontentsline{toc}{chapter}{Literatur}
 \end{document}
